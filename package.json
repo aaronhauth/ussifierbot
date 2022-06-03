@@ -1,7 +1,7 @@
 {
-  "name": "node-js-getting-started",
+  "name": "ussifier-bot",
   "version": "0.3.0",
-  "description": "A sample Node.js app using Express 4",
+  "description": "A bot that adds 'ussy' to the end of words",
   "engines": {
     "node": "16.x"
   },
@@ -12,7 +12,16 @@
   },
   "dependencies": {
     "ejs": "^3.1.5",
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "retext-emoji": "^8.1.0",
+    "retext-english": "^4.1.0",
+    "retext-pos": "^4.1.0",
+    "retext-stringify": "^3.1.0",
+    "tmi.js": "^1.8.5",
+    "unified": "^10.1.2",
+    "unified-stream": "^2.0.0",
+    "unist-util-is": "^5.1.1",
+    "unist-util-visit": "^4.1.0"
   },
   "devDependencies": {
     "got": "^11.3.0",
