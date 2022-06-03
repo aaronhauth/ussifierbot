@@ -45,5 +45,7 @@ chatClient.on('message', (target, tags, msg, self) => {
       // use the processing stream to ussify the message.
       const processResult = processor.processSync(msg);
       chatClient.say(target, processResult.value);
-  } 
+  } else {
+    chatClient.say(target, "echo!");
+  }
 });
