@@ -3,7 +3,7 @@ import retextEnglish from 'retext-english'
 import retextStringify from 'retext-stringify'
 import retextPos from 'retext-pos';
 import ussyfy from './ussify.js';
-
+import * as tmi from 'tmi.js';
 
 const ussyBotMessageFrequency = Number(process.env.ussyBotMessageFrequency);
 const ussifiedWordFrequency = Number(process.env.ussifiedWordFrequency);
