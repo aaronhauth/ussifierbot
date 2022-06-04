@@ -5,7 +5,11 @@ const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))
 export default function ussyfy(options = {}) {
     const frequency = options?.frequency;
 
-    console.warn('frequency not set');
+    if (!frequency) {
+        console.warn('frequency not set');
+    } else {
+        console.log(`frequency is set to ${frequency}`);
+    }
 
     return (tree, file) => {
         let wasUssified = false;

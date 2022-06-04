@@ -60,4 +60,22 @@ export class dbClient {
         throw err;
       }
     }
+
+    async setMessageFrequency(channelName, messageFrequency) {
+      try {
+        await this.pgClient.query('UPDATE channellist SET messagefrequency = $1 where username = $2;', [messageFrequency, channelName]);
+        return;
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    async setWordFrequency(channelName, wordFrequency) {
+      try {
+        await this.pgClient.query('UPDATE channellist SET wordfrequency = $1 where username = $2;', [wordFrequency, channelName]);
+        return;
+      } catch (err) {
+        throw err;
+      }
+    }
 }

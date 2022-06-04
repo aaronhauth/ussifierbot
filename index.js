@@ -35,12 +35,6 @@ const chatClient = new tmi.client(opts);
 
 chatClient.connect().catch(console.error);
 
-const processor = unified()
-  .use(retextEnglish)
-  .use(retextPos)
-  .use(ussyfy, {frequency: ussifiedWordFrequency})
-  .use(retextStringify);
-
   // this chat client really only works in the context of a single channel (mine, at the moment)
 // we initialize our chatTarget so that our redemption bot can have a channel to send our messages to. Otherwise, we don't care too much about this thing here.
 chatClient.on('message', async (target, tags, msg, self) => {
@@ -58,16 +52,54 @@ chatClient.on('message', async (target, tags, msg, self) => {
       return;
     }
 
+    if (msg.trim().toLowerCase().startsWith('!setmessagefrequency')) {
+      const messageParts = msg.trim().toLowerCase().split(' ', 2);
+      if (messageParts.length === 1) {
+        chatClient.say(target, `${tags.username} must enter a number after the command.`);
+        return;
+      }
 
+      const numberParam = Number(messageParts[1]);
+      if (!numberParam || numberParam < 1) {
+        chatClient.say(target, `${numberParam} is not a valid argument.`);
+
+      }
+      await updateMessageFrequencyForUser(target, tags.username, numberParam)
+      return;
+    }
+
+    if (msg.trim().toLowerCase().startsWith('!setwordfrequency')) {
+      const messageParts = msg.trim().toLowerCase().split(' ', 2);
+      if (messageParts.length === 1) {
+        chatClient.say(target, `${tags.username} must enter a number after the command.`);
+        return;
+      }
+
+      const numberParam = Number(messageParts[1]);
+      if (!numberParam || numberParam < 1) {
+        chatClient.say(target, `${numberParam} is not a valid argument.`);
+
+      }
+      await updateWordFrequencyForUser(target, tags.username, numberParam)
+      return;
+    }
   }
 
+  const channels = await db.getChannel(channelName);
 
+  if (channels.length !== 1) return;
+  const channel = channels[0];
 
   // if we hit the odds of ussyfying a word:
-  if (Math.floor(Math.random()*ussyBotMessageFrequency) === 0) {
+  if (Math.floor(Math.random()*(channel.messagefrequency ?? ussyBotMessageFrequency)) === 0) {
+      const processor = unified()
+        .use(retextEnglish)
+        .use(retextPos)
+        .use(ussyfy, {frequency: channel?.wordfrequency ?? ussifiedWordFrequency})
+        .use(retextStringify);
 
       // use the processing stream to ussify the message.
-      const processResult = processor.processSync(msg);
+      const processResult = await processor.process(msg);
       chatClient.say(target, processResult.value);
   }
 });
@@ -125,4 +157,26 @@ async function leave(target, userName) {
     chatClient.say(target, `failed to delete because of error ${JSON.stringify(err)}`);
     return;
   }
+}
+
+async function updateMessageFrequencyForUser(target, userName, wordFrequency) {
+    const existingChannels = await db.getChannel(userName);
+
+    if (existingChannels.length > 0) {
+      await db.setMessageFrequency(userName, wordFrequency);
+      chatClient.say(target, `${userName} word frequency updated!`);
+    } else {
+      chatClient.say(target, `${userName} channel not found`);
+    }
+}
+
+async function updateWordFrequencyForUser(target, userName, wordFrequency) {
+    const existingChannels = await db.getChannel(userName);
+
+    if (existingChannels.length > 0) {
+      await db.setWordFrequency(userName, wordFrequency);
+      chatClient.say(target, `${userName} word frequency updated!`);
+    } else {
+      chatClient.say(target, `${userName} channel not found`);
+    }
 }
