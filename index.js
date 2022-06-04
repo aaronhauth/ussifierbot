@@ -36,7 +36,7 @@ chatClient.connect().catch(console.error);
 
 chatClient.say(`#${process.env.botName}`, `Good morning! I just woke up. Joining ${channels.length} channels...`);
 
-channels.foreach(channel => {
+channels.forEach(channel => {
   chatClient.join(channel);
 })
 
