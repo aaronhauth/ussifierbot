@@ -26,23 +26,14 @@ const opts = {
       password: 'oauth:' + process.env.chatBotToken
   },
   channels: [
-      process.env.channelUserName
+      process.env.channelUserName,
+      ...channels
   ]
 }
 
 const chatClient = new tmi.client(opts);
 
 chatClient.connect().catch(console.error);
-
-chatClient.say(`#${process.env.botName}`, `Good morning! I just woke up. Joining ${channels.length} channels...`);
-
-channels.forEach( async channel => {
-  await chatClient.join(channel);
-})
-
-chatClient.say(`#${process.env.botName}`, `All channels are joined! I'm ready to go!`);
-
-
 
 const processor = unified()
   .use(retextEnglish)
