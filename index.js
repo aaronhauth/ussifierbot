@@ -139,7 +139,6 @@ async function leave(target, userName) {
 
     if (existingChannels.length > 0) {
       await db.deleteChannel(userName);
-      chatClient.say(target, `${userName} chat isn't getting ussified!`);
       removed = true;
     }
 
