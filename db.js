@@ -1,0 +1,63 @@
+import * as pg from 'pg';
+const Pool = pg.default.Pool;
+
+export class dbClient {
+    pgClient = null;
+    constructor() {
+        console.log(`constructor with ${process.env.DATABASE_URL}`)
+        this.pgClient = new Pool({
+            connectionString: process.env.DATABASE_URL,
+            ssl: {
+              rejectUnauthorized: false
+            }
+          });
+    }
+
+    async queryTables() {
+        console.log("querying tables?");
+        try {
+          const res = await this.pgClient.query('SELECT table_schema,table_name FROM information_schema.tables;');
+          for (let row of res.rows) {
+            console.log(JSON.stringify(row));
+          }
+        } catch (err) {
+          throw err;
+        } 
+    }
+
+    async insertChannel(channelName) {
+      try {
+        await this.pgClient.query('INSERT INTO channellist(username) VALUES($1);', [channelName]);
+        console.log('added!');
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    async getAllChannels() {
+      try {
+        const {rows} = await this.pgClient.query('SELECT * FROM channellist;');
+        return rows;
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    async getChannel(channelName) {
+      try {
+        const {rows} = await this.pgClient.query('SELECT * FROM channellist where username = $1;', [channelName]);
+        return rows;
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    async deleteChannel(channelName) {
+      try {
+        await this.pgClient.query('DELETE FROM channellist where username = $1;', [channelName]);
+        return;
+      } catch (err) {
+        throw err;
+      }
+    }
+}
