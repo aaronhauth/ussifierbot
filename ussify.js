@@ -8,26 +8,32 @@ export default function ussyfy(options = {}) {
     console.warn('frequency not set');
 
     return (tree, file) => {
-        visit(tree, 'WordNode', node => {
-            const tag = node.data.partOfSpeech;
-            const word = node.children[0].value;
+        let wasUssified = false;
 
-            if (tag[0] !== 'N') return;
-            if (Math.floor(Math.random()*frequency) === 0) return;
+        while (!wasUssified) {
+            visit(tree, 'WordNode', node => {
+                const tag = node.data.partOfSpeech;
+                const word = node.children[0].value;
+    
+                if (tag[0] !== 'N') return;
+                if (Math.floor(Math.random()*frequency) !== 0) return;
 
-            const syllables = word.match(syllableRegex);
-            if (!syllables) return word;
-            var ussyForm = tag[tag.length - 1] === 'S' ? 'ussies' : 'ussy';
-
-            if (word[word.length-1].match(/[^a-zA-Z]/)) {
-                ussyForm += word[word.length-1];
-            }
-
-            console.log(syllables);
-            syllables[syllables.length - 1] = syllables[syllables.length - 1][0] + ussyForm;
-            console.log(word);
-
-            node.children[0].value = syllables.join('');
-        });
+                wasUssified = true;
+    
+                const syllables = word.match(syllableRegex);
+                if (!syllables) return word;
+                var ussyForm = tag[tag.length - 1] === 'S' ? 'ussies' : 'ussy';
+    
+                if (word[word.length-1].match(/[^a-zA-Z]/)) {
+                    ussyForm += word[word.length-1];
+                }
+    
+                console.log(syllables);
+                syllables[syllables.length - 1] = syllables[syllables.length - 1][0] + ussyForm;
+                console.log(word);
+    
+                node.children[0].value = syllables.join('');
+            });
+        }
     }
 }
