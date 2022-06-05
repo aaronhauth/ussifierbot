@@ -21,6 +21,7 @@
     "tmi.js": "^1.8.5",
     "unified": "^10.1.2",
     "unified-stream": "^2.0.0",
+    "unist-util-find": "^1.0.2",
     "unist-util-is": "^5.1.1",
     "unist-util-visit": "^4.1.0"
   },
