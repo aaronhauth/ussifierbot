@@ -20,7 +20,6 @@ export default function ussyfy(options = {}) {
 
         while (!wasUssified) {
             visit(tree, 'WordNode', node => {
-                wordExists = true;
                 const tag = node.data.partOfSpeech;
                 const word = node.children[0].value;
     
