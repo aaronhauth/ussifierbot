@@ -1,5 +1,5 @@
 import {visit} from 'unist-util-visit'
-import {find} from 'unist-util-find';
+import find from 'unist-util-find';
 
 const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
 
