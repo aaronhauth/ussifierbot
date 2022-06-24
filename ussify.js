@@ -2,9 +2,10 @@ import {visit} from 'unist-util-visit'
 import find from 'unist-util-find';
 
 const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
+const startConsonantsRegex = /^[^aeiouy]*/i;
 
 export default function ussyfy(options = {}) {
-    const frequency = options?.frequency;
+    let frequency = options?.frequency;
 
     if (!frequency) {
         console.warn('frequency not set');
@@ -41,15 +42,19 @@ export default function ussyfy(options = {}) {
                     ussyForm += word[word.length-1];
                 }
     
-                console.log(syllables);
-                syllables[syllables.length - 1] = syllables[syllables.length - 1][0] + ussyForm;
-                console.log(word);
+                console.debug(syllables);
+                const lastSyllableConsonants = syllables[syllables.length - 1].match(startConsonantsRegex)[0];
+                syllables[syllables.length - 1] = lastSyllableConsonants + ussyForm;
+                console.debug(word);
     
                 //WordNode connects to a "TextNode". "TextNode" has a value field, which represents the string form of the word being evaluated.
                 node.children[0].value = syllables.join('');
             });
             // if we make a pass and nothing has been ussified, all bets are off. 
             loosenSearch = true;
+
+            // we may have also had some bad luck. Ease the odds so they its a little more probable next time;
+            if (frequency > 0) frequency -= 1; 
         }
     }
 }

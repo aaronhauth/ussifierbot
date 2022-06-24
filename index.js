@@ -89,13 +89,15 @@ chatClient.on('message', async (target, tags, msg, self) => {
 
   if (channels.length !== 1) return;
   const channel = channels[0];
+  const messageFrequency = channel.messagefrequency ?? ussyBotMessageFrequency;
+  const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
 
   // if we hit the odds of ussyfying a word:
-  if (Math.floor(Math.random()*(channel.messagefrequency ?? ussyBotMessageFrequency)) === 0) {
+  if (Math.floor(Math.random()*messageFrequency) === 0) {
       const processor = unified()
         .use(retextEnglish)
         .use(retextPos)
-        .use(ussyfy, {frequency: channel?.wordfrequency ?? ussifiedWordFrequency})
+        .use(ussyfy, {frequency: wordFrequency})
         .use(retextStringify);
 
       // use the processing stream to ussify the message.
