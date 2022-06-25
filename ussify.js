@@ -44,7 +44,11 @@ export default function ussyfy(options = {}) {
     
                 console.debug(syllables);
                 const lastSyllableConsonants = syllables[syllables.length - 1].match(startConsonantsRegex)[0];
-                syllables[syllables.length - 1] = lastSyllableConsonants + ussyForm;
+                if (lastSyllableConsonants.length === 0) {
+                    syllables[syllables.length - 1] = syllables[syllables.length - 1][0] + ussyForm;
+                } else {
+                    syllables[syllables.length - 1] = lastSyllableConsonants + ussyForm;
+                }
                 console.debug(word);
     
                 //WordNode connects to a "TextNode". "TextNode" has a value field, which represents the string form of the word being evaluated.
