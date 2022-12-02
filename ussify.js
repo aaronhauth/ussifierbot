@@ -4,6 +4,7 @@ import find from 'unist-util-find';
 const syllableRegex = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
 const startConsonantsRegex = /^[^aeiouy]*/i;
 
+// returns a function to be used within a retexted unified processor
 export default function ussyfy(options = {}) {
     let frequency = options?.frequency;
 
