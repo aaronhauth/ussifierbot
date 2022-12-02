@@ -98,7 +98,7 @@ chatClient.on('message', async (target, tags, msg, self) => {
 
   const emotes = [];
   if (!!tags['emote-only']) {
-    const emotePositions = Object.values(tags['emote-only']);
+    const emotePositions = Object.values(tags['emote-only']).flat();
     for (let position of emotePositions) {
       const parts = position.split('-');
       emotes.push(msg.substring(parts[0], parts[1]));
