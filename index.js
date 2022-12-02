@@ -3,6 +3,7 @@ import retextEnglish from 'retext-english'
 import retextStringify from 'retext-stringify'
 import retextPos from 'retext-pos';
 import ussyfy from './ussify.js';
+import emoteTagger from './emote-tagger.js';
 import * as tmi from 'tmi.js';
 
 import {dbClient} from './db.js';
@@ -45,8 +46,11 @@ chatClient.on('message', async (target, tags, msg, self) => {
   console.log(self);
   
   if (self) return;
+  if (tags['emote-only']) return;
 
   const channelName = target.substring(1);
+
+  // Handle bot commands by looking for commands in bot's own channel
   if (channelName.toLowerCase() === process.env.botName.toLowerCase()) {
     if (msg.trim().toLowerCase() === '!join') {
       await join(target, tags.username);
@@ -98,11 +102,23 @@ chatClient.on('message', async (target, tags, msg, self) => {
   const messageFrequency = channel.messagefrequency ?? ussyBotMessageFrequency;
   const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
 
+  const emotes = [];
+  if (!!tags['emote-only']) {
+    const emotePositions = Object.values(tags['emote-only']);
+    for (let position of emotePositions) {
+      const parts = position.split('-');
+      emotes.push(msg.substring(parts[0], parts[1]));
+    }
+    // make list unique
+    emotes = [...new Set(emotes).values];
+  }
+
   // if we hit the odds of ussyfying a word:
   if (Math.floor(Math.random()*messageFrequency) === 0) {
       const processor = unified()
         .use(retextEnglish)
         .use(retextPos)
+        .use(emoteTagger, {emotes: emotes})
         .use(ussyfy, {frequency: wordFrequency})
         .use(retextStringify);
 

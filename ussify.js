@@ -13,7 +13,7 @@ export default function ussyfy(options = {}) {
         console.log(`frequency is set to ${frequency}`);
     }
 
-    return (tree, file) => {
+    return (tree) => {
         let wasUssified = false;
         let loosenSearch = !find(tree, node => node.type === 'WordNode' && node.data.partOfSpeech[0] === 'N');
 
@@ -23,6 +23,8 @@ export default function ussyfy(options = {}) {
             visit(tree, 'WordNode', node => {
                 const tag = node.data.partOfSpeech;
                 const word = node.children[0].value;
+
+                if (node.data.isEmote) return;
     
                 // all noun tags start with N. Also, we're gonna give foreign words the ussy treatment.
                 if (tag[0] !== 'N' && tag !== 'FW' && !loosenSearch) return;
