@@ -31,9 +31,12 @@ export default function ussyfy(options = {}) {
                 if (tag[0] !== 'N' && tag !== 'FW' && !loosenSearch) return;
                 if (Math.floor(Math.random()*frequency) !== 0) return;
 
-                wasUssified = true;
-    
                 const syllables = word.match(syllableRegex);
+
+                // if the regex doesn't find anything, then kick back out
+                if (syllables.length == 0) return;
+                
+                wasUssified = true;
 
                 // POS tags that are plural nouns always end with S, (e.g., NNPS = "Proper noun, plural", and NNS = "Noun, plural".)
                 var ussyForm = tag[tag.length - 1] === 'S' && tag !== 'FW' ? 'ussies' : 'ussy';
