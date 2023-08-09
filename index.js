@@ -41,7 +41,9 @@ chatClient.on("ban", (channel, username, reason, userstate) => {
   console.log(userstate)
 })
 
-chatClient.connect().catch(console.error);
+chatClient.connect()
+.then(asdf => console.log(`resolved promise!`, asdf))
+.catch(console.error);
 
 
   // this chat client really only works in the context of a single channel (mine, at the moment)
