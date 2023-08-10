@@ -33,9 +33,6 @@ const opts = {
 }
 
 const chatClient = new tmi.client(opts);
-
-chatClient.connect().catch(console.error);
-
 chatClient.on("ban", (channel, username, reason, userstate) => {
   console.log("uh oh. I've been banned. idk what to do at this point, but for logging purposes, here's this...");
   console.log(channel)
@@ -43,6 +40,9 @@ chatClient.on("ban", (channel, username, reason, userstate) => {
   console.log(reason)
   console.log(userstate)
 })
+
+chatClient.connect().catch(console.error);
+
 
   // this chat client really only works in the context of a single channel (mine, at the moment)
 // we initialize our chatTarget so that our redemption bot can have a channel to send our messages to. Otherwise, we don't care too much about this thing here.
