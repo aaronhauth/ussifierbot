@@ -36,6 +36,14 @@ const chatClient = new tmi.client(opts);
 
 chatClient.connect().catch(console.error);
 
+chatClient.on("ban", (channel, username, reason, userstate) => {
+  console.log("uh oh. I've been banned. idk what to do at this point, but for logging purposes, here's this...");
+  console.log(channel)
+  console.log(username)
+  console.log(reason)
+  console.log(userstate)
+})
+
   // this chat client really only works in the context of a single channel (mine, at the moment)
 // we initialize our chatTarget so that our redemption bot can have a channel to send our messages to. Otherwise, we don't care too much about this thing here.
 chatClient.on('message', async (target, tags, msg, self) => {
@@ -96,15 +104,16 @@ chatClient.on('message', async (target, tags, msg, self) => {
   const messageFrequency = channel.messagefrequency ?? ussyBotMessageFrequency;
   const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
 
-  const emotes = [];
+  // generate list of emotes used in the message
+  const emotes = new Set();
   if (!!tags['emote-only']) {
     const emotePositions = Object.values(tags['emote-only']).flat();
     for (let position of emotePositions) {
       const parts = position.split('-');
-      emotes.push(msg.substring(parts[0], parts[1]));
+      emotes.add(msg.substring(parts[0], parts[1]));
     }
     // make list unique
-    emotes = [...new Set(emotes).values];
+    emotes = [...emotes.values];
   }
 
   // if we hit the odds of ussyfying a word:
