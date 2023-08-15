@@ -33,17 +33,13 @@ const opts = {
 }
 
 const chatClient = new tmi.client(opts);
-chatClient.on("ban", (channel, username, reason, userstate) => {
-  console.log("uh oh. I've been banned. idk what to do at this point, but for logging purposes, here's this...");
-  console.log(channel)
-  console.log(username)
-  console.log(reason)
-  console.log(userstate)
-})
 
 chatClient.connect()
 .then(asdf => console.log(`resolved promise!`, asdf))
-.catch(console.error);
+.catch(err => {
+  console.log('caught error in connect() attempt')
+  console.log(err);
+});
 
 
   // this chat client really only works in the context of a single channel (mine, at the moment)
