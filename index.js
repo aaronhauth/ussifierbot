@@ -9,11 +9,10 @@ import * as tmi from 'tmi.js';
 import {dbClient} from './db.js';
 
 const db = new dbClient();
-const channels = (await db.getAllChannels()).map(row => row.username);
+const clientChannels = (await db.getAllChannels()).map(row => row.username);
 
 const ussyBotMessageFrequency = Number(process.env.ussyBotMessageFrequency);
 const ussifiedWordFrequency = Number(process.env.ussifiedWordFrequency);
-
 
 // chatbot options
 const opts = {
@@ -27,19 +26,26 @@ const opts = {
       password: 'oauth:' + process.env.chatBotToken
   },
   channels: [
-      process.env.channelUserName,
-      ...channels
+      process.env.channelUserName
   ]
 }
 
 const chatClient = new tmi.client(opts);
 
-chatClient.connect()
-.then(asdf => console.log(`resolved promise!`, asdf))
-.catch(err => {
-  console.log('caught error in connect() attempt')
-  console.log(err);
-});
+chatClient.connect().catch(console.error);
+
+clientChannels.forEach(channel => {
+  chatClient.join(channel)
+    .catch(err => {
+      console.log(err);
+      if (err === 'msg_banned') {
+        db.deleteChannel(channel)
+        .then(res => {
+          console.log(`successfully deleted ${channel}`, res);
+        })
+      }
+    })
+})
 
 
   // this chat client really only works in the context of a single channel (mine, at the moment)
