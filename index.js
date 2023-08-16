@@ -32,7 +32,11 @@ const opts = {
 
 const chatClient = new tmi.client(opts);
 
-chatClient.connect().catch(console.error);
+try {
+  await chatClient.connect();
+} catch (err) {
+  console.error(err);
+}
 
 clientChannels.forEach(channel => {
   chatClient.join(channel)
