@@ -109,13 +109,13 @@ chatClient.on('message', async (target, tags, msg, self) => {
 
   if (channels.length !== 1) return;
   const channel = channels[0];
+  const emotes = new Set();
   const messageFrequency = channel.messagefrequency ?? ussyBotMessageFrequency;
   const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
 
 
   if (!!tags['emotes']) {
     const emotePositions = Object.values(tags['emote']).flat();
-    const emotes = new Set();
   // generate list of emotes used in the message
     for (let position of emotePositions) {
       const parts = position.split('-');
