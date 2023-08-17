@@ -115,6 +115,7 @@ chatClient.on('message', async (target, tags, msg, self) => {
 
   if (!!tags['emotes']) {
     const emotePositions = Object.values(tags['emote']).flat();
+    const emotes = [];
   // generate list of emotes used in the message
     for (let position of emotePositions) {
       const parts = position.split('-');
