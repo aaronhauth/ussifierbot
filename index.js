@@ -109,7 +109,8 @@ chatClient.on('message', async (target, tags, msg, self) => {
 
   if (channels.length !== 1) return;
   const channel = channels[0];
-  const emotes = new Set();
+  const uniqueEmotes = new Set();
+  const emotes = [];
   const messageFrequency = channel.messagefrequency ?? ussyBotMessageFrequency;
   const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
 
@@ -122,7 +123,7 @@ chatClient.on('message', async (target, tags, msg, self) => {
       emotes.add(msg.substring(parts[0], parts[1]));
     }
     // make list unique
-    emotes = [...emotes.values];
+    emotes = [...uniqueEmotes.values];
   }
 
   // if we hit the odds of ussyfying a word:
