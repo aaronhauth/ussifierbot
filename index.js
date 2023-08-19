@@ -115,7 +115,7 @@ chatClient.on('message', async (target, tags, msg, self) => {
   const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
 
 
-  if (!!tags['emotes']) {
+  if (!!tags['emotes'] && tags['emotes'].length > 0) {
     const emotePositions = Object.values(tags['emote']).flat();
   // generate list of emotes used in the message
     for (let position of emotePositions) {
