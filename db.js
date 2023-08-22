@@ -78,4 +78,22 @@ export class dbClient {
         throw err;
       }
     }
+
+    async addUserToIgnoreList(channelName, userName) {
+      try {
+        await this.pgClient.query('update channellist set ignorelist = array_append(ignorelist, $1) where username = $2;', [userName, channelName])
+        return;
+      } catch(err) {
+        throw err;
+      }
+    }
+
+    async removeUserFromIgnoreList(channelName, userName) {
+      try {
+        await this.pgClient.query('update channellist set ignorelist = array_remove(ignorelist, $1) where username = $2;', [userName, channelName])
+        return;
+      } catch(err) {
+        throw err;
+      }
+    }
 }
