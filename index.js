@@ -110,7 +110,7 @@ chatClient.on('message', async (target, tags, msg, self) => {
   if (channels.length !== 1) return;
   const channel = channels[0];
 
-  if (channel.ignorelist && channel.indexOf(tags.username) > -1) {
+  if (channel.ignorelist && channel.ignorelist.indexOf(tags.username) > -1) {
     console.log(`user ${tags.username} is on the ignore list. ignoring their message...`);
   }
 
