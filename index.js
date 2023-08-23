@@ -74,16 +74,16 @@ chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
   const channels = await db.getChannel(channelName);
 
   if (channels.length !== 1) return;
-  const channel = channels[0];
+  const channelSettings = channels[0];
 
-  if (channel.ignorelist && channel.ignorelist.indexOf(tags.username) > -1) {
+  if (channelSettings.ignorelist && channelSettings.ignorelist.indexOf(tags.username) > -1) {
     console.log(`user ${tags.username} is on the ignore list. ignoring their message...`);
   }
 
   const uniqueEmotes = new Set();
   const emotes = [];
-  const messageFrequency = channel.messagefrequency ?? ussyBotMessageFrequency;
-  const wordFrequency = channel?.wordfrequency ?? ussifiedWordFrequency;
+  const messageFrequency = channelSettings.messagefrequency ?? ussyBotMessageFrequency;
+  const wordFrequency = channelSettings?.wordfrequency ?? ussifiedWordFrequency;
 
 
   if (!!tags['emotes'] && tags['emotes'].length > 0) {
