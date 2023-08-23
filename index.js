@@ -168,13 +168,13 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
-      const results = await db.getUserInIgnoreList(messageParts[1], channelName);
+      const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (results.rows) {
         chatClient.say(channel, `${tags.username} is already being ignored`);
         return;
       }
 
-      await db.addUserToIgnoreList(messageParts[1], channelName);
+      await db.addUserToIgnoreList(channelName, messageParts[1]);
       return;
     }
 
@@ -186,13 +186,13 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
-      const results = await db.getUserInIgnoreList(messageParts[1], channelName);
+      const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (!results.rows) {
         chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
         return;
       }
 
-      await db.removeUserFromIgnoreList(messageParts[1], channelName);
+      await db.removeUserFromIgnoreList(channelName, messageParts[1]);
       return;
     }
   }
