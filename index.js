@@ -168,11 +168,14 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
+      console.log(`Adding ${messageParts[1]} to ignore list for ${channelName}`);
       const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (results.rows) {
         chatClient.say(channel, `${tags.username} is already being ignored`);
         return;
       }
+      console.log(`user is not already being ignored. Adding to ignore list`);
+
 
       await db.addUserToIgnoreList(channelName, messageParts[1]);
       return;
