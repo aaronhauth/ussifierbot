@@ -157,9 +157,10 @@ async function handleBotChannelCommands(channel, tags, msg) {
 
 async function handleHostChannelCommands(channel, tags, msg) {
   console.log(`${channel} === ${tags.username}?`);
+  const channelName = channel.substring(1); // get channel name, without the # at the start
   // commands that are executed on the channel itself let us adjust settings for the bot on the channel, but only
   // if the user sending the command is the channel owner, or a mod for the channel
-  if (channel === tags.username || tags.mod) {
+  if (channelName === tags.username || tags.mod) {
     if (msg.trim().toLowerCase().startsWith('!ubignoreuser')) {
       const messageParts = msg.trim().toLowerCase().split(' ', 2);
 
