@@ -54,55 +54,21 @@ clientChannels.forEach(channel => {
 
   // this chat client really only works in the context of a single channel (mine, at the moment)
 // we initialize our chatTarget so that our redemption bot can have a channel to send our messages to. Otherwise, we don't care too much about this thing here.
-chatClient.on('message', async (target, tags, msg, self) => {
-  if (self) return;
+chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
+  if (msgSentBySelf) return;
   if (!!tags['emote-only']) return;
 
-  const channelName = target.substring(1);
+  const channelName = channel.substring(1);
 
   // Handle bot commands by looking for commands in bot's own channel
   if (channelName.toLowerCase() === process.env.botName.toLowerCase()) {
-    if (msg.trim().toLowerCase() === '!join') {
-      await join(target, tags.username);
-      return;
-    }
+    await handleBotChannelCommands(channel, tags, msg);
+    return;
+  }
 
-    if (msg.trim().toLowerCase() === '!leave') {
-      await leave(target, tags.username);
-      return;
-    }
-
-    if (msg.trim().toLowerCase().startsWith('!setmessagefrequency')) {
-      const messageParts = msg.trim().toLowerCase().split(' ', 2);
-      if (messageParts.length === 1) {
-        chatClient.say(target, `${tags.username} must enter a number after the command.`);
-        return;
-      }
-
-      const numberParam = Number(messageParts[1]);
-      if (!numberParam || numberParam < 1) {
-        chatClient.say(target, `${numberParam} is not a valid argument.`);
-
-      }
-      await updateMessageFrequencyForUser(target, tags.username, numberParam)
-      return;
-    }
-
-    if (msg.trim().toLowerCase().startsWith('!setwordfrequency')) {
-      const messageParts = msg.trim().toLowerCase().split(' ', 2);
-      if (messageParts.length === 1) {
-        chatClient.say(target, `${tags.username} must enter a number after the command.`);
-        return;
-      }
-
-      const numberParam = Number(messageParts[1]);
-      if (!numberParam || numberParam < 1) {
-        chatClient.say(target, `${numberParam} is not a valid argument.`);
-
-      }
-      await updateWordFrequencyForUser(target, tags.username, numberParam)
-      return;
-    }
+  if (msg.startsWith('!')) {
+    await handleHostChannelCommands(channel, tags, msg);
+    return;
   }
 
   const channels = await db.getChannel(channelName);
@@ -142,9 +108,94 @@ chatClient.on('message', async (target, tags, msg, self) => {
 
       // use the processing stream to ussify the message.
       const processResult = await processor.process(msg);
-      chatClient.say(target, processResult.value);
+      chatClient.say(channel, processResult.value);
   }
 });
+
+async function handleBotChannelCommands(channel, tags, msg) {
+  if (msg.trim().toLowerCase() === '!join') {
+    await join(channel, tags.username);
+    return;
+  }
+
+  if (msg.trim().toLowerCase() === '!leave') {
+    await leave(channel, tags.username);
+    return;
+  }
+
+  if (msg.trim().toLowerCase().startsWith('!setmessagefrequency')) {
+    const messageParts = msg.trim().toLowerCase().split(' ', 2);
+    if (messageParts.length === 1) {
+      chatClient.say(channel, `${tags.username} must enter a number after the command.`);
+      return;
+    }
+
+    const numberParam = Number(messageParts[1]);
+    if (!numberParam || numberParam < 1) {
+      chatClient.say(channel, `${numberParam} is not a valid argument.`);
+
+    }
+    await updateMessageFrequencyForUser(channel, tags.username, numberParam)
+    return;
+  }
+
+  if (msg.trim().toLowerCase().startsWith('!setwordfrequency')) {
+    const messageParts = msg.trim().toLowerCase().split(' ', 2);
+    if (messageParts.length === 1) {
+      chatClient.say(channel, `${tags.username} must enter a number after the command.`);
+      return;
+    }
+
+    const numberParam = Number(messageParts[1]);
+    if (!numberParam || numberParam < 1) {
+      chatClient.say(channel, `${numberParam} is not a valid argument.`);
+    }
+    await updateWordFrequencyForUser(channel, tags.username, numberParam)
+    return;
+  }
+}
+
+async function handleHostChannelCommands(channel, tags, msg) {
+  // commands that are executed on the channel itself let us adjust settings for the bot on the channel, but only
+  // if the user sending the command is the channel owner, or a mod for the channel
+  if (channel === tags.username || tags.mod) {
+    if (msg.trim().toLowerCase().startsWith('!ubignoreuser')) {
+      const messageParts = msg.trim().toLowerCase().split(' ', 2);
+
+      if (messageParts.length === 1) {
+        chatClient.say(channel, `${tags.username} must enter a number after the command.`);
+        return;
+      }
+
+      const results = await db.getUserInIgnoreList(channel, messageParts[1]);
+      if (results.rows) {
+        chatClient.say(channel, `${tags.username} is already being ignored`);
+        return;
+      }
+
+      await db.addUserToIgnoreList(channel, messageParts[1]);
+      return;
+    }
+
+    if (msg.trim().toLowerCase().startsWith('!ubunignoreuser')) {
+      const messageParts = msg.trim().toLowerCase().split(' ', 2);
+
+      if (messageParts.length === 1) {
+        chatClient.say(channel, `${tags.username} must enter a number after the command.`);
+        return;
+      }
+
+      const results = await db.getUserInIgnoreList(channel, messageParts[1]);
+      if (!results.rows) {
+        chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
+        return;
+      }
+
+      await db.removeUserFromIgnoreList(channel, messageParts[1]);
+      return;
+    }
+  }
+}
 
 async function join(target, userName) {
   try {
