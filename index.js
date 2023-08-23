@@ -156,7 +156,6 @@ async function handleBotChannelCommands(channel, tags, msg) {
 }
 
 async function handleHostChannelCommands(channel, tags, msg) {
-  console.log(`${channel} === ${tags.username}?`);
   const channelName = channel.substring(1); // get channel name, without the # at the start
   // commands that are executed on the channel itself let us adjust settings for the bot on the channel, but only
   // if the user sending the command is the channel owner, or a mod for the channel
@@ -169,13 +168,13 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
-      const results = await db.getUserInIgnoreList(channel, messageParts[1]);
+      const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (results.rows) {
         chatClient.say(channel, `${tags.username} is already being ignored`);
         return;
       }
 
-      await db.addUserToIgnoreList(channel, messageParts[1]);
+      await db.addUserToIgnoreList(channelName, messageParts[1]);
       return;
     }
 
@@ -187,13 +186,13 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
-      const results = await db.getUserInIgnoreList(channel, messageParts[1]);
+      const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (!results.rows) {
         chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
         return;
       }
 
-      await db.removeUserFromIgnoreList(channel, messageParts[1]);
+      await db.removeUserFromIgnoreList(channelName, messageParts[1]);
       return;
     }
   }
