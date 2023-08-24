@@ -34,7 +34,7 @@ export default function ussyfy(options = {}) {
                 const syllables = word.match(syllableRegex);
 
                 // if the regex doesn't find anything, then kick back out
-                if (syllables.length == 0) return;
+                if (!syllables?.length) return;
                 
                 wasUssified = true;
 
