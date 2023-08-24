@@ -11,6 +11,19 @@ export class dbClient {
               rejectUnauthorized: false
             }
           });
+        // if (process.env.NODE_ENV !== 'production') {
+        //   this.pgClient = new Pool({
+        //       connectionString: process.env.DATABASE_URL,
+        //       ssl: false
+        //   });
+        // } else {
+        //   this.pgClient = new Pool({
+        //         connectionString: process.env.DATABASE_URL,
+        //         ssl: {
+        //             rejectUnauthorized: false
+        //           }
+        //     });
+        // }
     }
 
     async queryTables() {

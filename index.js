@@ -5,6 +5,11 @@ import retextPos from 'retext-pos';
 import ussyfy from './ussify.js';
 import emoteTagger from './emote-tagger.js';
 import * as tmi from 'tmi.js';
+import dotenv from 'dotenv';
+
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import {dbClient} from './db.js';
 
@@ -169,8 +174,8 @@ async function handleHostChannelCommands(channel, tags, msg) {
       }
 
       console.log(`Adding ${messageParts[1]} to ignore list for ${channelName}`);
-      const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
-      if (results.rows) {
+      const rows = await db.getUserInIgnoreList(channelName, messageParts[1]);
+      if (rows.length) {
         chatClient.say(channel, `${tags.username} is already being ignored`);
         return;
       }
@@ -189,8 +194,8 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
-      const results = await db.getUserInIgnoreList(channelName, messageParts[1]);
-      if (!results.rows) {
+      const rows = await db.getUserInIgnoreList(channelName, messageParts[1]);
+      if (!rows.length) {
         chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
         return;
       }
