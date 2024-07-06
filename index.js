@@ -6,12 +6,13 @@ import ussyfy from './ussify.js';
 import emoteTagger from './emote-tagger.js';
 import * as tmi from 'tmi.js';
 import dotenv from 'dotenv';
+import {dbClient} from './db.js';
+
 
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
 
-import {dbClient} from './db.js';
 
 const db = new dbClient();
 const clientChannels = (await db.getAllChannels()).map(row => row.username);
@@ -57,7 +58,6 @@ clientChannels.forEach(channel => {
 })
 
 
-  // this chat client really only works in the context of a single channel (mine, at the moment)
 // we initialize our chatTarget so that our redemption bot can have a channel to send our messages to. Otherwise, we don't care too much about this thing here.
 chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
   if (msgSentBySelf) return;
@@ -89,7 +89,9 @@ chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
   const emotes = [];
   const messageFrequency = channelSettings.messagefrequency ?? ussyBotMessageFrequency;
   const wordFrequency = channelSettings?.wordfrequency ?? ussifiedWordFrequency;
-
+  const singularEnding = channelSettings?.singularending ?? 'ussy';
+  const pluralEnding = channelSettings?.pluralending ?? 'ussies';
+  
 
   if (!!tags['emotes'] && tags['emotes'].length > 0) {
     const emotePositions = Object.values(tags['emote']).flat();
@@ -108,7 +110,10 @@ chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
         .use(retextEnglish)
         .use(retextPos)
         .use(emoteTagger, {emotes: emotes})
-        .use(ussyfy, {frequency: wordFrequency})
+        .use(ussyfy, {frequency: wordFrequency,
+                      singularEnding: singularEnding,
+                      pluralEnding: pluralEnding
+                      })
         .use(retextStringify);
 
       // use the processing stream to ussify the message.
@@ -169,20 +174,21 @@ async function handleHostChannelCommands(channel, tags, msg) {
       const messageParts = msg.trim().toLowerCase().split(' ', 2);
 
       if (messageParts.length === 1) {
-        chatClient.say(channel, `${tags.username} must enter a number after the command.`);
+        chatClient.say(channel, `${tags.username} must enter a name after the command.`);
         return;
       }
 
-      console.log(`Adding ${messageParts[1]} to ignore list for ${channelName}`);
       const rows = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (rows.length) {
         chatClient.say(channel, `${tags.username} is already being ignored`);
         return;
       }
+
+      console.log(`Adding ${messageParts[1]} to ignore list for ${channelName}`);
       console.log(`user is not already being ignored. Adding to ignore list`);
 
-
       await db.addUserToIgnoreList(channelName, messageParts[1]);
+      chatClient.say(channel, `${messageParts[1]} will be ignored from now on. If you would like to get ussyfied again in the future, type "!ubunignoreuser ${messageParts[1]}" in the chat.`)
       return;
     }
 
@@ -190,7 +196,7 @@ async function handleHostChannelCommands(channel, tags, msg) {
       const messageParts = msg.trim().toLowerCase().split(' ', 2);
 
       if (messageParts.length === 1) {
-        chatClient.say(channel, `${tags.username} must enter a number after the command.`);
+        chatClient.say(channel, `${tags.username} must enter a name after the command.`);
         return;
       }
 
@@ -201,6 +207,7 @@ async function handleHostChannelCommands(channel, tags, msg) {
       }
 
       await db.removeUserFromIgnoreList(channelName, messageParts[1]);
+      chatClient.say(channel, `${messageParts[1]} will no longer be ignorred by ussifierBot. If you don't want to get ussyfied anymore, type "!ubignoreuser ${messageParts[1]}" in the chat.`)
       return;
     }
   }

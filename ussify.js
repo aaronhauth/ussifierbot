@@ -7,6 +7,8 @@ const startConsonantsRegex = /^[^aeiouy]*/i;
 // returns a function to be used within a retexted unified processor
 export default function ussyfy(options = {}) {
     let frequency = options?.frequency;
+    const {singularEnding, pluralEnding} = options?.singularEnding;
+
 
     if (!frequency) {
         console.warn('frequency not set');
@@ -27,8 +29,10 @@ export default function ussyfy(options = {}) {
 
                 if (node.data.isEmote) return;
     
-                // all noun tags start with N. Also, we're gonna give foreign words the ussy treatment.
+                // all noun tags start with N. Also, we're gonna give non-english words the ussy treatment.
                 if (tag[0] !== 'N' && tag !== 'FW' && !loosenSearch) return;
+
+                // randomly decide if we ussify this word
                 if (Math.floor(Math.random()*frequency) !== 0) return;
 
                 const syllables = word.match(syllableRegex);
@@ -39,7 +43,7 @@ export default function ussyfy(options = {}) {
                 wasUssified = true;
 
                 // POS tags that are plural nouns always end with S, (e.g., NNPS = "Proper noun, plural", and NNS = "Noun, plural".)
-                var ussyForm = tag[tag.length - 1] === 'S' && tag !== 'FW' ? 'ussies' : 'ussy';
+                var ussyForm = tag[tag.length - 1] === 'S' && tag !== 'FW' ? pluralEnding : singularEnding;
     
                 if (word[word.length-1].match(/[^a-zA-Z]/)) {
                     ussyForm += word[word.length-1];
