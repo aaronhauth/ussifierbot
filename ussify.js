@@ -7,7 +7,7 @@ const startConsonantsRegex = /^[^aeiouy]*/i;
 // returns a function to be used within a retexted unified processor
 export default function ussyfy(options = {}) {
     let frequency = options?.frequency;
-    const {singularEnding, pluralEnding} = options?.singularEnding;
+    const {singularEnding, pluralEnding} = options ?? {};
 
 
     if (!frequency) {

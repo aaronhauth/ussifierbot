@@ -4,7 +4,7 @@ import retextStringify from 'retext-stringify'
 import retextPos from 'retext-pos';
 import ussyfy from './ussify.js';
 import emoteTagger from './emote-tagger.js';
-import * as tmi from 'tmi.js';
+import {Client} from 'tmi.js';
 import dotenv from 'dotenv';
 import {dbClient} from './db.js';
 
@@ -36,7 +36,7 @@ const opts = {
   ]
 }
 
-const chatClient = new tmi.client(opts);
+const chatClient = new Client(opts);
 
 try {
   await chatClient.connect();
@@ -178,17 +178,18 @@ async function handleHostChannelCommands(channel, tags, msg) {
         return;
       }
 
+      const targetUser = messageParts[1];
       const rows = await db.getUserInIgnoreList(channelName, messageParts[1]);
       if (rows.length) {
         chatClient.say(channel, `${tags.username} is already being ignored`);
         return;
       }
 
-      console.log(`Adding ${messageParts[1]} to ignore list for ${channelName}`);
+      console.log(`Adding ${targetUser} to ignore list for ${channelName}`);
       console.log(`user is not already being ignored. Adding to ignore list`);
 
-      await db.addUserToIgnoreList(channelName, messageParts[1]);
-      chatClient.say(channel, `${messageParts[1]} will be ignored from now on. If you would like to get ussyfied again in the future, type "!ubunignoreuser ${messageParts[1]}" in the chat.`)
+      await db.addUserToIgnoreList(channelName, targetUser);
+      chatClient.say(channel, `${targetUser} will be ignored from now on. If you would like to get ussyfied again in the future, type "!ubunignoreuser ${targetUser}" in the chat.`)
       return;
     }
 
@@ -199,15 +200,15 @@ async function handleHostChannelCommands(channel, tags, msg) {
         chatClient.say(channel, `${tags.username} must enter a name after the command.`);
         return;
       }
-
-      const rows = await db.getUserInIgnoreList(channelName, messageParts[1]);
+      const targetUser = messageParts[1];
+      const rows = await db.getUserInIgnoreList(channelName, targetUser);
       if (!rows.length) {
         chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
         return;
       }
 
-      await db.removeUserFromIgnoreList(channelName, messageParts[1]);
-      chatClient.say(channel, `${messageParts[1]} will no longer be ignorred by ussifierBot. If you don't want to get ussyfied anymore, type "!ubignoreuser ${messageParts[1]}" in the chat.`)
+      await db.removeUserFromIgnoreList(channelName, targetUser);
+      chatClient.say(channel, `${targetUser} will no longer be ignorred by ussifierBot. If you don't want to get ussyfied anymore, type "!ubignoreuser ${messageParts[1]}" in the chat.`)
       return;
     }
   }
