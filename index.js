@@ -83,6 +83,7 @@ chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
 
   if (channelSettings.ignorelist && channelSettings.ignorelist.indexOf(tags.username) > -1) {
     console.log(`user ${tags.username} is on the ignore list. ignoring their message...`);
+    return;
   }
 
   const uniqueEmotes = new Set();
