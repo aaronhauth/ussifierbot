@@ -156,7 +156,7 @@ async function handleBotChannelCommands(channel, tags, msg) {
       chatClient.say(channel, `${tags.username} must enter a number after the command.`);
       return;
     }
-
+    console.log('woah!');
     const numberParam = Number(messageParts[1]);
     if (!numberParam || numberParam < 1) {
       chatClient.say(channel, `${numberParam} is not a valid argument.`);
@@ -201,7 +201,7 @@ async function handleHostChannelCommands(channel, tags, msg) {
       }
 
       const targetUser = messageParts[1];
-      const {ignorelist} = await db.getChannel(channelName);
+      let {ignorelist} = await db.getChannel(channelName);
       if (!ignorelist.includes(targetUser)) {
         chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
         return;
