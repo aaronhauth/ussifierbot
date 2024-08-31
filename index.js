@@ -180,16 +180,14 @@ async function handleHostChannelCommands(channel, tags, msg) {
       }
 
       const targetUser = messageParts[1];
-      const rows = await db.getUserInIgnoreList(channelName, messageParts[1]);
-      if (rows.length) {
-        chatClient.say(channel, `${tags.username} is already being ignored`);
+      const {ignorelist} = await db.getChannel(channelName);
+      if (ignorelist.includes(targetUser)) {
+        chatClient.say(channel, `${targetUser} is already being ignored`);
         return;
       }
 
-      console.log(`Adding ${targetUser} to ignore list for ${channelName}`);
-      console.log(`user is not already being ignored. Adding to ignore list`);
-
-      await db.addUserToIgnoreList(channelName, targetUser);
+      ignorelist.push(targetUser);
+      await db.updateIgnoreList(channelName, targetUser);
       chatClient.say(channel, `${targetUser} will be ignored from now on. If you would like to get ussyfied again in the future, type "!ubunignoreuser ${targetUser}" in the chat.`)
       return;
     }
@@ -201,15 +199,16 @@ async function handleHostChannelCommands(channel, tags, msg) {
         chatClient.say(channel, `${tags.username} must enter a name after the command.`);
         return;
       }
+
       const targetUser = messageParts[1];
-      const rows = await db.getUserInIgnoreList(channelName, targetUser);
-      if (!rows.length) {
+      const {ignorelist} = await db.getChannel(channelName);
+      if (!ignorelist.includes(targetUser)) {
         chatClient.say(channel, `${tags.username} wasn't being ignored, ya ding dong.`);
         return;
       }
-
-      await db.removeUserFromIgnoreList(channelName, targetUser);
-      chatClient.say(channel, `${targetUser} will no longer be ignorred by ussifierBot. If you don't want to get ussyfied anymore, type "!ubignoreuser ${messageParts[1]}" in the chat.`)
+      ignorelist = ignorelist.filter(user => user === targetUser);
+      await db.updateIgnoreList(channelName, ignorelist);
+      chatClient.say(channel, `${targetUser} will no longer be ignored by ussifierBot. If you don't want to get ussyfied anymore, type "!ubignoreuser ${messageParts[1]}" in the chat.`)
       return;
     }
   }

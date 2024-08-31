@@ -1,5 +1,8 @@
+import {PrismaClient} from '@prisma/client';
 import * as pg from 'pg';
 const Pool = pg.default.Pool;
+
+const prisma = new PrismaClient();
 
 export class dbClient {
     pgClient = null;
@@ -11,23 +14,9 @@ export class dbClient {
               rejectUnauthorized: false
             }
           });
-        // if (process.env.NODE_ENV !== 'production') {
-        //   this.pgClient = new Pool({
-        //       connectionString: process.env.DATABASE_URL,
-        //       ssl: false
-        //   });
-        // } else {
-        //   this.pgClient = new Pool({
-        //         connectionString: process.env.DATABASE_URL,
-        //         ssl: {
-        //             rejectUnauthorized: false
-        //           }
-        //     });
-        // }
     }
 
     async queryTables() {
-        console.log("querying tables?");
         try {
           const res = await this.pgClient.query('SELECT table_schema,table_name FROM information_schema.tables;');
           for (let row of res.rows) {
@@ -40,8 +29,11 @@ export class dbClient {
 
     async insertChannel(channelName) {
       try {
-        await this.pgClient.query('INSERT INTO channellist(username) VALUES($1);', [channelName]);
-        console.log('added!');
+        await prisma.channellist.create({
+          data: {
+            username: channelName
+          }
+        })
       } catch (err) {
         throw err;
       }
@@ -49,8 +41,8 @@ export class dbClient {
 
     async getAllChannels() {
       try {
-        const {rows} = await this.pgClient.query('SELECT * FROM channellist;');
-        return rows;
+        const channels = await prisma.channellist.findMany();
+        return channels;
       } catch (err) {
         throw err;
       }
@@ -58,8 +50,11 @@ export class dbClient {
 
     async getChannel(channelName) {
       try {
-        const {rows} = await this.pgClient.query('SELECT * FROM channellist where username = $1;', [channelName]);
-        return rows;
+        return await prisma.channellist.findFirst({
+          where: {
+            username: channelName
+          }
+        })
       } catch (err) {
         throw err;
       }
@@ -67,7 +62,11 @@ export class dbClient {
 
     async deleteChannel(channelName) {
       try {
-        await this.pgClient.query('DELETE FROM channellist where username = $1;', [channelName]);
+        await prisma.channellist.delete({
+          where: {
+            username: channelName
+          }
+        });
         return;
       } catch (err) {
         throw err;
@@ -76,7 +75,14 @@ export class dbClient {
 
     async setMessageFrequency(channelName, messageFrequency) {
       try {
-        await this.pgClient.query('UPDATE channellist SET messagefrequency = $1 where username = $2;', [messageFrequency, channelName]);
+        await prisma.channellist.update({
+          data: {
+            messagefrequency: messageFrequency
+          },
+          where: {
+            username: channelName
+          }
+        });
         return;
       } catch (err) {
         throw err;
@@ -85,34 +91,29 @@ export class dbClient {
 
     async setWordFrequency(channelName, wordFrequency) {
       try {
-        await this.pgClient.query('UPDATE channellist SET wordfrequency = $1 where username = $2;', [wordFrequency, channelName]);
-        return;
+        return await prisma.channellist.update({
+          data: {
+            wordfrequency: wordFrequency
+          },
+          where: {
+            username: channelName
+          }
+        })
       } catch (err) {
         throw err;
       }
     }
 
-    async getUserInIgnoreList(channelName, userName) {
+    async updateIgnoreList(channelName, ignoreList) {
       try {
-        const {rows} = await this.pgClient.query('select * from channellist where username = $2 AND $1 = ANY(ignorelist)', [userName, channelName])
-        return rows;
-      } catch(err) {
-        throw err;
-      }
-    }
-
-    async addUserToIgnoreList(channelName, userName) {
-      try {
-        await this.pgClient.query('update channellist set ignorelist = array_append(ignorelist, $1) where username = $2;', [userName, channelName])
-        return;
-      } catch(err) {
-        throw err;
-      }
-    }
-
-    async removeUserFromIgnoreList(channelName, userName) {
-      try {
-        await this.pgClient.query('update channellist set ignorelist = array_remove(ignorelist, $1) where username = $2;', [userName, channelName])
+        await prisma.channellist.update({
+          data: {
+            ignorelist: ignoreList
+          },
+          where: {
+            username: channelName
+          }
+        })
         return;
       } catch(err) {
         throw err;
