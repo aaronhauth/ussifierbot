@@ -3,11 +3,9 @@ import * as pg from 'pg';
 const Pool = pg.default.Pool;
 
 const prisma = new PrismaClient();
-
 export class dbClient {
     pgClient = null;
     constructor() {
-        console.log(`constructor with ${process.env.DATABASE_URL}`)
         this.pgClient = new Pool({
             connectionString: process.env.DATABASE_URL,
             ssl: {

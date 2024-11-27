@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "watch": "node --watch index.js",
     "test": "node test.js"
   },
   "dependencies": {

@@ -7,6 +7,17 @@ import emoteTagger from './emote-tagger.js';
 import {Client} from 'tmi.js';
 import dotenv from 'dotenv';
 import {dbClient} from './db.js';
+import express from 'express';
+import configRoutes from './ssr-routes/config.routes.js';
+
+// https://twitchapps.com/tokengen/
+
+
+// handle express stuff for our config ui
+const app = express();
+app.use('/config', configRoutes);
+app.get('/', (_, res) => res.send('hello world!'));
+app.listen(3000, () => console.log('listening on port 3000'));
 
 
 if (process.env.NODE_ENV !== 'production') {
@@ -76,22 +87,21 @@ chatClient.on('message', async (channel, tags, msg, msgSentBySelf) => {
     return;
   }
 
-  const channels = await db.getChannel(channelName);
+  const channelData = await db.getChannel(channelName);
 
-  if (channels.length !== 1) return;
-  const channelSettings = channels[0];
+  if (!channelData) return;
 
-  if (channelSettings.ignorelist && channelSettings.ignorelist.indexOf(tags.username) > -1) {
+  if (channelData.ignorelist && channelData.ignorelist.indexOf(tags.username) > -1) {
     console.log(`user ${tags.username} is on the ignore list. ignoring their message...`);
     return;
   }
 
   const uniqueEmotes = new Set();
   const emotes = [];
-  const messageFrequency = channelSettings.messagefrequency ?? ussyBotMessageFrequency;
-  const wordFrequency = channelSettings?.wordfrequency ?? ussifiedWordFrequency;
-  const singularEnding = channelSettings?.singularending ?? 'ussy';
-  const pluralEnding = channelSettings?.pluralending ?? 'ussies';
+  const messageFrequency = channelData.messagefrequency ?? ussyBotMessageFrequency;
+  const wordFrequency = channelData?.wordfrequency ?? ussifiedWordFrequency;
+  const singularEnding = channelData?.singularending ?? 'ussy';
+  const pluralEnding = channelData?.pluralending ?? 'ussies';
   
 
   if (!!tags['emotes'] && tags['emotes'].length > 0) {
@@ -156,7 +166,7 @@ async function handleBotChannelCommands(channel, tags, msg) {
       chatClient.say(channel, `${tags.username} must enter a number after the command.`);
       return;
     }
-    console.log('woah!');
+
     const numberParam = Number(messageParts[1]);
     if (!numberParam || numberParam < 1) {
       chatClient.say(channel, `${numberParam} is not a valid argument.`);
